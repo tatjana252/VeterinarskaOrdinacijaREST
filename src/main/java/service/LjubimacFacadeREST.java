@@ -6,8 +6,14 @@
 package service;
 
 import domen.Ljubimac;
+import domen.Tipusluge;
+import domen.Usluga;
 import domen.Vlasnik;
+import domen.Vrstazivotinje;
+import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -23,6 +29,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import service.usluga.UslugaFacadeREST;
 
 /**
  *
@@ -38,7 +45,7 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
     public LjubimacFacadeREST() {
         super(Ljubimac.class);
     }
-    
+
     @GET
     @Path("vlasnik/ucitajVlasnike")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -53,83 +60,58 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }
+
+    @GET
+    @Path("vrstezivotinja")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response ucitajVrsteZivotinja() {
+        try {
+            List<Vrstazivotinje> vrstazivotinje = em.createQuery("SELECT vz FROM Vrstazivotinje vz").getResultList();
+            GenericEntity<List<Vrstazivotinje>> ge = new GenericEntity<List<Vrstazivotinje>>(vrstazivotinje) {
+            };
+            return Response.ok(ge).build();
+        } catch (NoResultException ne) {
+            String odg = "Sistem ne može da učita vrste životinja!";
+            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+        }
+    }
     
-//
-//    @POST
-//    @Override
-//    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-//    public void create(Ljubimac entity) {
-//        super.create(entity);
-//    }
-//
-//    @PUT
-//    @Path("{id}")
-//    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-//    public void edit(@PathParam("id") Integer id, Ljubimac entity) {
-//        super.edit(entity);
-//    }
-//
-//    @DELETE
-//    @Path("{id}")
-//    public void remove(@PathParam("id") Integer id) {
-//        super.remove(super.find(id));
-//    }
-//
-//    @GET
-//    @Path("{id}")
-//    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-//    public Ljubimac find(@PathParam("id") Integer id) {
-//        return super.find(id);
-//    }
-//
-//    @GET
-//    @Override
-//    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-//    public List<Ljubimac> findAll() {
-//        return super.findAll();
-//    }
-//
-//    @GET
-//    @Path("{from}/{to}")
-//    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-//    public List<Ljubimac> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-//        return super.findRange(new int[]{from, to});
-//    }
-//
-//    @GET
-//    @Path("count")
-//    @Produces(MediaType.TEXT_PLAIN)
-//    public String countREST() {
-//        return String.valueOf(super.count());
-//    }
-//
+    
+    @POST
+    @Path("sacuvaj")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    public Response sacuvajLjubimca(Ljubimac entity) {
+        try {
+            Vlasnik vlasnik = entity.getVlasnikid();
+            if(entity.getVlasnikid().getVlasnikid() == -1){
+                System.out.println("Vlasnik je sacuvan");
+                em.persist(vlasnik);
+                vlasnik = (Vlasnik) em.createQuery("SELECT v FROM Vlasnik v WHERE v.jmbg = :jmbg AND v.ime = :ime AND v.prezime = :prezime")
+                        .setParameter("jmbg", vlasnik.getJmbg())
+                        .setParameter("ime", vlasnik.getIme())
+                        .setParameter("prezime", vlasnik.getPrezime())
+                        .getSingleResult();
+                System.out.println("Vracam vlasnika iz baze");
+                entity.setVlasnikid(vlasnik);
+            }
+            System.out.println("Cuvam ljubimca");
+            em.persist(entity);
+            System.out.println("Ljubimac je sacuvan");
+            return Response.ok("Ljubimac je sačuvan!").build();
+        } catch (Exception e) {
+            Logger.getLogger(LjubimacFacadeREST.class.getName()).log(Level.SEVERE, null, e);
+            String odg = "Ljubimac nije sačuvan!";
+            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+        }
+    }
+
+
+
+
     @Override
     protected EntityManager getEntityManager() {
         return em;
     }
-    
-//     @POST
-//    @Path("vlasnik/sacuvaj")
-//    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-//    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-//    public Response sacuvajVlasnika(Vlasnik entity) {
-//        try {
-//
-//            if (!em.createQuery("SELECT v.vlasnikid FROM Vlasnik v")
-//                    .setParameter("naziv", entity.getNaziv()).setParameter("tipuslugeid", entity.getTipuslugeid())
-//                    .setMaxResults(1)
-//                    .getResultList()
-//                    .isEmpty()) {
-//                throw new Exception();
-//            }
-//            create(entity);
-//            return Response.ok("Usluga je sačuvana!").build();
-//        } catch (Exception e) {
-//            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, e);
-//            String odg = "Sistem ne može da sačuva uslugu!";
-//            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
-//        }
-//        em.persist(entity);
-//    }
-    
+
 }
