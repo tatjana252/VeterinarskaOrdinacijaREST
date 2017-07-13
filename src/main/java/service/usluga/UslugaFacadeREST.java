@@ -47,7 +47,6 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
     public UslugaFacadeREST() {
         super(Usluga.class);
     }
-    //**********************************KORISTI SE ******************************************
 
     @GET
     @Path("tipoviusluga")
@@ -141,7 +140,6 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
     @Consumes({MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_XML})
     public Response pretrazi(Search search) {
-        System.out.println("POZVAM JE SERVIS");
         String query = "SELECT u FROM Usluga u WHERE ";
         for (Map.Entry<String, Object> entry : search.getFilters().entrySet()) {
             String key = entry.getKey();
@@ -166,42 +164,17 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
             Object value = entry.getValue();
             q.setParameter(key, "%" + value + "%");
         }
-        System.out.println("UPIT JE " + q);
         List<Usluga> result = q.setFirstResult(search.getFirst()).setMaxResults(search.getPageSize()).getResultList();
         GenericEntity<List<Usluga>> gt = new GenericEntity<List<Usluga>>(result) {
         };
-        System.out.println("vracam " + result.size());
         return Response.ok(gt).build();
-
     }
 
     @PUT
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public void promeni(@PathParam("id") Integer id, Usluga usluga) {
-        System.out.println("MENJAM USLUGU KOJU " + id + usluga.getNaziv() + usluga.getCena() + usluga.getTipuslugeid());
         em.merge(usluga);
-    }
-    //*******************************KRAJ KORISTI SE ****************************************************
-
-    @DELETE
-    @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
-        super.remove(super.find(id));
-    }
-
-    @GET
-    @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<Usluga> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
-    }
-
-    @GET
-    @Path("count")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() {
-        return String.valueOf(super.count());
     }
 
     @Override
