@@ -6,6 +6,7 @@
 package service;
 
 import domen.Ljubimac;
+import domen.Poseta;
 import domen.Search;
 import domen.Tipusluge;
 import domen.Usluga;
@@ -162,10 +163,12 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
     public Response prikaziLjubimca(Ljubimac ljubimac) {
         try {
             Ljubimac lj = (Ljubimac) em.createQuery("SELECT lj FROM Ljubimac lj WHERE lj.ljubimacid = :ljubimacid").setParameter("ljubimacid", ljubimac.getLjubimacid()).getSingleResult();
-            GenericEntity<Ljubimac> gt = new GenericEntity<Ljubimac>(lj) {
+            
+            GenericEntity<List<Poseta>> gt = new GenericEntity<List<Poseta>>(lj.getPosetaList()) {
             };
             return Response.ok(gt).build();
         } catch (NoResultException ne) {
+            
             String odg = "Sistem ne može da prikaze ljubimca!";
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }

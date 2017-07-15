@@ -20,14 +20,14 @@ public class StavkaposetePK implements Serializable {
 
     @Basic(optional = false)
     @NotNull
-    @Column(name = "posetaid")
+    @Column(name = "posetaid", nullable = false)
     private int posetaid;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "uslugaid")
+    @Column(name = "uslugaid", nullable = false)
     private int uslugaid;
     @Basic(optional = false)
-    @Column(name = "stavkaposeteid")
+    @Column(name = "stavkaposeteid", nullable = false)
     private int stavkaposeteid;
 
     public StavkaposetePK() {

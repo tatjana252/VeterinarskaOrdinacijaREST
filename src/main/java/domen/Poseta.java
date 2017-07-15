@@ -26,6 +26,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
 
 /**
  *
@@ -44,16 +45,16 @@ public class Poseta implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "posetaid")
+    @Column(name = "posetaid", nullable = false)
     private Integer posetaid;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "datum")
+    @Column(name = "datum", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date datum;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "poseta")
     private List<Stavkaposete> stavkaposeteList;
-    @JoinColumn(name = "ljubimacid", referencedColumnName = "ljubimacid")
+    @JoinColumn(name = "ljubimacid", referencedColumnName = "ljubimacid", nullable = false)
     @ManyToOne(optional = false)
     private Ljubimac ljubimacid;
 
@@ -85,7 +86,7 @@ public class Poseta implements Serializable {
         this.datum = datum;
     }
 
-    @XmlTransient
+    @XmlInverseReference(mappedBy="stavkaposete")
     public List<Stavkaposete> getStavkaposeteList() {
         return stavkaposeteList;
     }

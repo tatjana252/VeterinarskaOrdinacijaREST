@@ -16,6 +16,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -36,12 +37,12 @@ public class Stavkaposete implements Serializable {
     @EmbeddedId
     protected StavkaposetePK stavkaposetePK;
     @Size(max = 1000)
-    @Column(name = "opis")
+    @Column(name = "opis", length = 1000)
     private String opis;
-    @JoinColumn(name = "uslugaid", referencedColumnName = "uslugaid", insertable = false, updatable = false)
+    @JoinColumn(name = "uslugaid", referencedColumnName = "uslugaid", nullable = false, insertable = false, updatable = false)
     @ManyToOne(optional = false)
     private Usluga usluga;
-    @JoinColumn(name = "posetaid", referencedColumnName = "posetaid", insertable = false, updatable = false)
+    @JoinColumn(name = "posetaid", referencedColumnName = "posetaid", nullable = false, insertable = false, updatable = false)
     @ManyToOne(optional = false)
     private Poseta poseta;
 
@@ -84,6 +85,7 @@ public class Stavkaposete implements Serializable {
         return poseta;
     }
 
+    @XmlTransient
     public void setPoseta(Poseta poseta) {
         this.poseta = poseta;
     }
