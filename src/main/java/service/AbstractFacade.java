@@ -5,14 +5,26 @@
  */
 package service;
 
+import domen.Korisnik;
+import domen.Ljubimac;
+import domen.Request;
+import domen.Search;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.swing.SortOrder;
+import javax.ws.rs.core.Response;
 
 /**
  *
  * @author hp
  */
 public abstract class AbstractFacade<T> {
+    
+    @PersistenceContext(unitName = "VeterinarskaOrdinacijaREST")
+    private EntityManager em;
 
     private Class<T> entityClass;
 
@@ -20,45 +32,56 @@ public abstract class AbstractFacade<T> {
         this.entityClass = entityClass;
     }
 
-    protected abstract EntityManager getEntityManager();
+    protected EntityManager getEntityManager(){
+        return em;
+    };
+    
+    public abstract Response sacuvaj(Request request);
+    
+    public abstract Response izmeni(Request request);
 
-    public void create(T entity) {
-        getEntityManager().persist(entity);
+    public abstract Response obrisi(Request request);
+
+    public abstract Response ucitajSve();
+
+    public abstract Response prikazi(Request request);
+    
+    public abstract Response pretrazi(Search search);
+
+    protected void checkIfUserIsLoggedIn(Korisnik korisnik) throws Exception{
+        Korisnik k = (Korisnik) em.createQuery("SELECT k FROM Korisnik k WHERE k.korisnikid = :korisnikid and k.pass = :pass").setParameter("korisnikid", korisnik.getKorisnikid()).setParameter("pass", korisnik.getPass()).getSingleResult();
+        if(k == null){
+            throw new Exception("Niste ulogovani!");
+        }
     }
-
-    public void edit(T entity) {
-        getEntityManager().merge(entity);
-    }
-
-    public void remove(T entity) {
-        getEntityManager().remove(getEntityManager().merge(entity));
-    }
-
-    public T find(Object id) {
-        return getEntityManager().find(entityClass, id);
-    }
-
-    public List<T> findAll() {
-        javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
-        cq.select(cq.from(entityClass));
-        return getEntityManager().createQuery(cq).getResultList();
-    }
-
-    public List<T> findRange(int[] range) {
-        javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
-        cq.select(cq.from(entityClass));
-        javax.persistence.Query q = getEntityManager().createQuery(cq);
-        q.setMaxResults(range[1] - range[0] + 1);
-        q.setFirstResult(range[0]);
-        return q.getResultList();
-    }
-
-    public int count() {
-        javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
-        javax.persistence.criteria.Root<T> rt = cq.from(entityClass);
-        cq.select(getEntityManager().getCriteriaBuilder().count(rt));
-        javax.persistence.Query q = getEntityManager().createQuery(cq);
-        return ((Long) q.getSingleResult()).intValue();
+    
+    protected List<T> search(Search search){
+        String nazivKlase = entityClass.getSimpleName();
+        String nazivKlaseLowerCase = nazivKlase.toLowerCase();
+        String query = "SELECT "+nazivKlaseLowerCase+ " FROM "+ nazivKlase+" "+nazivKlaseLowerCase +" WHERE ";
+        for (Map.Entry<String, Object> entry : search.getFilters().entrySet()) {
+            String key = entry.getKey();
+            query += " CAST("+nazivKlaseLowerCase+"." + key + " AS CHAR(255))";
+            key = key.replace(".", "");
+            query += " LIKE :" + key;
+            query += " AND ";
+        }
+        query = query.replaceAll(" WHERE $", "");
+        query = query.replaceAll(" AND $", "");
+        if (search.getSortField() != null) {
+            query += " ORDER BY "+nazivKlaseLowerCase+"." + search.getSortField();
+            if (SortOrder.DESCENDING.equals(search.getSortOrder())) {
+                query += " DESC";
+            }
+        }
+        TypedQuery<T> q = em.createQuery(query, entityClass);
+        for (Map.Entry<String, Object> entry : search.getFilters().entrySet()) {
+            String key = entry.getKey();
+            key = key.replace(".", "");
+            Object value = entry.getValue();
+            q.setParameter(key, "%" + value + "%");
+        }
+        return q.setFirstResult(search.getFirst()).setMaxResults(search.getPageSize()).getResultList();
     }
     
 }

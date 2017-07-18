@@ -31,6 +31,7 @@ public class ApplicationConfig extends Application {
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(service.LjubimacFacadeREST.class);
         resources.add(service.korisnik.KorisnikFacadeREST.class);
+        resources.add(service.usluga.TipUslugeFacadeREST.class);
         resources.add(service.usluga.UslugaFacadeREST.class);
     }
     

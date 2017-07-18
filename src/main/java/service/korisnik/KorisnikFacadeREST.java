@@ -6,6 +6,8 @@
 package service.korisnik;
 
 import domen.Korisnik;
+import domen.Request;
+import domen.Search;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -31,21 +33,18 @@ import service.AbstractFacade;
 @Path("korisnik")
 public class KorisnikFacadeREST extends AbstractFacade<Korisnik> {
 
-    @PersistenceContext(unitName = "VeterinarskaOrdinacijaREST")
-    private EntityManager em;
 
     public KorisnikFacadeREST() {
         super(Korisnik.class);
     }
 
-    //******************************KORISTI SE ************************************
     @POST
     @Path("login")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public Response login(Korisnik k) throws Exception {
         try {
-            Korisnik korisnik = (Korisnik) em.createQuery("SELECT k from Korisnik k WHERE k.korisnikid = :korisnikid AND k.pass = :pass")
+            Korisnik korisnik = (Korisnik) getEntityManager().createQuery("SELECT k from Korisnik k WHERE k.korisnikid = :korisnikid AND k.pass = :pass")
                     .setParameter("korisnikid", k.getKorisnikid())
                     .setParameter("pass", k.getPass()).getSingleResult();
             return Response.ok(korisnik).build();
@@ -56,58 +55,33 @@ public class KorisnikFacadeREST extends AbstractFacade<Korisnik> {
 
     }
 
-    //************************************KRAJ KORISTI SE ***********************************
-    @POST
+
     @Override
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public void create(Korisnik entity) {
-        super.create(entity);
-    }
-
-    @PUT
-    @Path("{id}")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public void edit(@PathParam("id") String id, Korisnik entity) {
-        super.edit(entity);
-    }
-
-    @DELETE
-    @Path("{id}")
-    public void remove(@PathParam("id") String id) {
-        super.remove(super.find(id));
-    }
-
-    @GET
-    @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Korisnik find(@PathParam("id") String id) {
-        return super.find(id);
-    }
-
-    @GET
-    @Override
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<Korisnik> findAll() {
-        return super.findAll();
-    }
-
-    @GET
-    @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public List<Korisnik> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
-    }
-
-    @GET
-    @Path("count")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() {
-        return String.valueOf(super.count());
+    public Response sacuvaj(Request request) {return null;
     }
 
     @Override
-    protected EntityManager getEntityManager() {
-        return em;
+    public Response izmeni(Request request) {return null;
     }
+
+    @Override
+    public Response obrisi(Request request) {return null;
+    }
+
+    @Override
+    public Response ucitajSve() {
+        return null;
+    }
+
+    @Override
+    public Response prikazi(Request request) {
+        return null;
+    }
+
+    @Override
+    public Response pretrazi(Search search) {
+        return null;
+    }
+
 
 }
