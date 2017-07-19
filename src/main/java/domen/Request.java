@@ -6,7 +6,6 @@
 package domen;
 
 import java.io.Serializable;
-import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -18,7 +17,6 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 @XmlRootElement
 @XmlSeeAlso({Ljubimac.class, Poseta.class, Usluga.class})
 public class Request implements Serializable{
-    
     private Korisnik korisnik;
     private Object requestObject;
 

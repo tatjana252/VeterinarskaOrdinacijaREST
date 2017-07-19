@@ -73,8 +73,11 @@ public class TipUslugeFacadeREST extends AbstractFacade<Tipusluge> {
     public Response prikazi(Request request) {
         try {
             Tipusluge zahtev = (Tipusluge) request.getRequestObject();
-            Tipusluge tu = (Tipusluge) em.createQuery("SELECT tu FROM Tipusluge tu WHERE tu.naziv = :naziv ").setParameter("naziv", zahtev
-           .getNaziv()).getSingleResult();
+            Tipusluge tu = (Tipusluge) 
+                    em.createQuery("SELECT tu FROM Tipusluge tu WHERE tu.naziv = :naziv ")
+                            .setParameter("naziv", zahtev
+                            .getNaziv())
+                            .getSingleResult();
             GenericEntity<Tipusluge> gt = new GenericEntity<Tipusluge>(tu) {
             };
             return Response.ok(gt).build();

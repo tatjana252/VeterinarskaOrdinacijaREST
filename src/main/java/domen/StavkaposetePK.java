@@ -20,11 +20,11 @@ public class StavkaposetePK implements Serializable {
 
     @Basic(optional = false)
     @NotNull
-    @Column(name = "posetaid", nullable = false)
+    @Column(name = "posetaid", nullable = false, insertable = false, updatable = false)
     private int posetaid;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "uslugaid", nullable = false)
+    @Column(name = "uslugaid", nullable = false, insertable = false, updatable = false)
     private int uslugaid;
     @Basic(optional = false)
     @Column(name = "stavkaposeteid", nullable = false)

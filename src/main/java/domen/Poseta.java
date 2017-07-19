@@ -6,6 +6,7 @@
 package domen;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
@@ -57,7 +58,11 @@ public class Poseta implements Serializable {
     @JoinColumn(name = "ljubimacid", referencedColumnName = "ljubimacid", nullable = false)
     @ManyToOne(optional = false)
     private Ljubimac ljubimacid;
-
+    
+    public String getDatumString(){
+        return new SimpleDateFormat("dd.MM.yyyy").format(datum);
+    }
+    
     public Poseta() {
     }
 
@@ -102,7 +107,7 @@ public class Poseta implements Serializable {
     public void setLjubimacid(Ljubimac ljubimacid) {
         this.ljubimacid = ljubimacid;
     }
-
+    
     @Override
     public int hashCode() {
         int hash = 0;

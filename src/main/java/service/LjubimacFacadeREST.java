@@ -11,28 +11,21 @@ import domen.Search;
 import domen.Vlasnik;
 import domen.Vrstazivotinje;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.swing.SortOrder;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Variant;
 
 /**
  *
@@ -50,36 +43,6 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
         
     }
 
-    @GET
-    @Path("vlasnik/ucitajVlasnike")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response ucitajVlasnike() {
-        try {
-            List<Vlasnik> vlasnici = em.createQuery("SELECT v FROM Vlasnik v").getResultList();
-            GenericEntity<List<Vlasnik>> ge = new GenericEntity<List<Vlasnik>>(vlasnici) {
-            };
-            return Response.ok(ge).build();
-        } catch (NoResultException ne) {
-            String odg = "Sistem ne može da učita vlasnike!";
-            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
-        }
-    }
-
-    @GET
-    @Path("vrstezivotinja")
-    @Produces(MediaType.APPLICATION_XML)
-    public Response ucitajVrsteZivotinja() {
-        try {
-            List<Vrstazivotinje> vrstazivotinje = em.createQuery("SELECT vz FROM Vrstazivotinje vz").getResultList();
-            GenericEntity<List<Vrstazivotinje>> ge = new GenericEntity<List<Vrstazivotinje>>(vrstazivotinje) {
-            };
-            return Response.ok(ge).build();
-        } catch (NoResultException ne) {
-            String odg = "Sistem ne može da učita vrste životinja!";
-            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
-        }
-    }
-
     @POST
     @Path("sacuvaj")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -87,11 +50,8 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
     @Override
     public Response sacuvaj(domen.Request request) {
         try {
-            System.out.println("1");
             checkIfUserIsLoggedIn(request.getKorisnik());
-            System.out.println("2");
             Ljubimac entity = (Ljubimac) request.getRequestObject();
-            System.out.println("3");
             Vlasnik vlasnik = entity.getVlasnikid();
             if (entity.getVlasnikid().getVlasnikid() == -1) {
                 em.persist(vlasnik);

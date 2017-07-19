@@ -182,7 +182,6 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response prikazi(Request request) {
         try {
-            checkIfUserIsLoggedIn(request.getKorisnik());
             if (!(request.getRequestObject() instanceof Usluga)) {
                 throw new Exception();
             }

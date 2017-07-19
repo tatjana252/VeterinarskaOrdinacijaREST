@@ -6,6 +6,7 @@
 package domen;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
@@ -80,8 +81,17 @@ public class Ljubimac implements Serializable {
     private Vlasnik vlasnikid;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "ljubimacid")
     private List<Poseta> posetaList;
+    
+    public String getDatumrodjenjaString() {
+        try{
+        return new SimpleDateFormat("dd.MM.yyyy").format(datumrodjenja);
+        }catch(Exception e){
+            return "";
+        }
+    }
 
     public Ljubimac() {
+        vrstazivotinjeid = new Vrstazivotinje();
     }
 
     public Ljubimac(Integer ljubimacid) {
