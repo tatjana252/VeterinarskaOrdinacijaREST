@@ -3,12 +3,12 @@
     <persistence-unit name="VeterinarskaOrdinacijaREST" transaction-type="JTA">
         <jta-data-source>java:app/jndiveterinarskaordinacija</jta-data-source>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <properties>
+        <!--properties>
             <property name="eclipselink.weaving" value="static" />
             <property name="eclipselink.logging.level.sql" value="FINEST" />
             <property name="eclipselink.logging.level" value="FINEST" />
             <property name="eclipselink.logging.level.cache" value="FINEST" />
             <property name="eclipselink.logging.parameters"  value="true"/>
-        </properties>
+        </properties-->
     </persistence-unit>
 </persistence>
