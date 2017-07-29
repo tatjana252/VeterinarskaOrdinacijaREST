@@ -62,6 +62,7 @@ public abstract class AbstractFacade<T> {
         for (Map.Entry<String, Object> entry : search.getFilters().entrySet()) {
             String key = entry.getKey();
             query += " CAST("+nazivKlaseLowerCase+"." + key + " AS CHAR(255))";
+//            query += ""+nazivKlaseLowerCase+"." + key + " ";
             key = key.replace(".", "");
             query += " LIKE :" + key;
             query += " AND ";
@@ -82,6 +83,29 @@ public abstract class AbstractFacade<T> {
             q.setParameter(key, "%" + value + "%");
         }
         return q.setFirstResult(search.getFirst()).setMaxResults(search.getPageSize()).getResultList();
+    }
+    
+     protected String createSearchQuery(Search search){
+        String nazivKlase = entityClass.getSimpleName();
+        String nazivKlaseLowerCase = nazivKlase.toLowerCase();
+        String query = "SELECT "+nazivKlaseLowerCase+ " FROM "+ nazivKlase+" "+nazivKlaseLowerCase +" WHERE ";
+        for (Map.Entry<String, Object> entry : search.getFilters().entrySet()) {
+            String key = entry.getKey();
+            query += " CAST("+nazivKlaseLowerCase+"." + key + " AS CHAR(255))";
+//            query += ""+nazivKlaseLowerCase+"." + key + " ";
+            key = key.replace(".", "");
+            query += " LIKE :" + key;
+            query += " AND ";
+        }
+        query = query.replaceAll(" WHERE $", "");
+        query = query.replaceAll(" AND $", "");
+        if (search.getSortField() != null) {
+            query += " ORDER BY "+nazivKlaseLowerCase+"." + search.getSortField();
+            if (SortOrder.DESCENDING.equals(search.getSortOrder())) {
+                query += " DESC";
+            }
+        }
+        return query;
     }
     
 }
