@@ -9,6 +9,8 @@ import domen.Request;
 import domen.Search;
 import domen.Vlasnik;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -63,11 +65,13 @@ public class VlasnikFacadeREST extends AbstractFacade<Vlasnik> {
     }
 
     @Override
-    @GET
+    @POST
     @Path("vratisve")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response ucitajSve() {
+    public Response ucitajSve(Request request) {
         try {
+            checkIfUserIsLoggedIn(request.getKorisnik());
             List<Vlasnik> vlasnici = em.createQuery("SELECT v FROM Vlasnik v").getResultList();
             GenericEntity<List<Vlasnik>> ge = new GenericEntity<List<Vlasnik>>(vlasnici) {
             };
@@ -75,7 +79,10 @@ public class VlasnikFacadeREST extends AbstractFacade<Vlasnik> {
         } catch (NoResultException ne) {
             String odg = "Sistem ne može da učita vlasnike!";
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
-    }
+    }   catch (Exception ex) {
+             String odg = "Sistem ne može da učita vlasnike!";
+            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+        }
     }
 
     @Override
@@ -84,7 +91,7 @@ public class VlasnikFacadeREST extends AbstractFacade<Vlasnik> {
     }
 
     @Override
-    public Response pretrazi(Search search) {
+    public Response pretrazi(Request request) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

@@ -84,7 +84,9 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
     @Path("pretraga")
     @Consumes({MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_XML})
-    public Response pretrazi(Search search) {
+    @Override
+    public Response pretrazi(Request request) {
+        Search search = (Search) request.getRequestObject();
         List<Usluga> result = search(search);
         GenericEntity<List<Usluga>> gt = new GenericEntity<List<Usluga>>(result) {
         };
@@ -160,10 +162,11 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
     }
 
     @Override
-    @GET
+    @POST
     @Path("vratisve")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response ucitajSve() {
+    public Response ucitajSve(Request request) {
         try {
             List<Usluga> usluge = em.createQuery("SELECT u FROM Usluga u ORDER BY u.tipuslugeid ASC").getResultList();
             GenericEntity<List<Usluga>> ge = new GenericEntity<List<Usluga>>(usluge) {

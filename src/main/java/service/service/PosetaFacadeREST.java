@@ -72,14 +72,14 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
                 throw new Exception();
             }
             
-            System.out.println("Da li se posalje lista "+poseta.getStavkaposeteList());
-            for (Stavkaposete stavkaposete : poseta.getStavkaposeteList()) {
-                stavkaposete.setStavkaposetePK(new StavkaposetePK());
-                System.out.println(stavkaposete.getUsluga());
-                stavkaposete.setPoseta(poseta);
-                System.out.println("Ovo je poseta"+stavkaposete.getPoseta());
-//                em.persist(stavkaposete);
-            }
+//            System.out.println("Da li se posalje lista "+poseta.getStavkaposeteList());
+//            for (Stavkaposete stavkaposete : poseta.getStavkaposeteList()) {
+//                stavkaposete.setStavkaposetePK(new StavkaposetePK());
+//                System.out.println(stavkaposete.getUsluga());
+//                stavkaposete.setPoseta(poseta);
+//                System.out.println("Ovo je poseta"+stavkaposete.getPoseta());
+////                em.persist(stavkaposete);
+//            }
             em.persist(poseta);
             em.flush();
             return Response.ok("Usluga je sačuvana!").build();
@@ -101,7 +101,7 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
     }
 
     @Override
-    public Response ucitajSve() {
+    public Response ucitajSve(Request request) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -111,7 +111,7 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
     }
 
     @Override
-    public Response pretrazi(Search search) {
+    public Response pretrazi(Request request) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

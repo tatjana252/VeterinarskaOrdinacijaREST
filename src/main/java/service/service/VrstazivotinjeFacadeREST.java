@@ -64,10 +64,11 @@ public class VrstazivotinjeFacadeREST extends AbstractFacade<Vrstazivotinje> {
     }
 
     @Override
-    @GET
+    @POST
     @Path("vratisve")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response ucitajSve() {
+    public Response ucitajSve(Request request) {
         try {
             List<Vrstazivotinje> vrstazivotinje = em.createQuery("SELECT vz FROM Vrstazivotinje vz").getResultList();
             GenericEntity<List<Vrstazivotinje>> ge = new GenericEntity<List<Vrstazivotinje>>(vrstazivotinje) {
@@ -85,7 +86,7 @@ public class VrstazivotinjeFacadeREST extends AbstractFacade<Vrstazivotinje> {
     }
 
     @Override
-    public Response pretrazi(Search search) {
+    public Response pretrazi(Request request) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

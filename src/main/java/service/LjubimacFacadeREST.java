@@ -7,6 +7,7 @@ package service;
 
 import domen.Ljubimac;
 import domen.Poseta;
+import domen.Request;
 import domen.Search;
 import domen.Vlasnik;
 import domen.Vrstazivotinje;
@@ -76,24 +77,30 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
     @Consumes({MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_XML})
     @Override
-    public Response pretrazi(Search search) {
+    public Response pretrazi(Request request) {
+        Search search = (Search) request.getRequestObject();
         List<Ljubimac> result = search(search);
         GenericEntity<List<Ljubimac>> gt = new GenericEntity<List<Ljubimac>>(result) {
         };
         return Response.ok(gt).build();
     }
 
-    @GET
+    @POST
     @Path("vratisve")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Override
-    public Response ucitajSve() {
+    public Response ucitajSve(Request request) {
         try {
+            checkIfUserIsLoggedIn(request.getKorisnik());
             List<Ljubimac> usluge = em.createQuery("SELECT lj FROM Ljubimac lj ORDER BY lj.ime ASC").getResultList();
             GenericEntity<List<Ljubimac>> ge = new GenericEntity<List<Ljubimac>>(usluge) {
             };
             return Response.ok(ge).build();
         } catch (NoResultException ne) {
+            String odg = "Sistem ne može da učita ljubimce!";
+            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+        } catch (Exception ex) {
             String odg = "Sistem ne može da učita ljubimce!";
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }

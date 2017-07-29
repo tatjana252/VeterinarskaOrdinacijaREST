@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  */
 
 @XmlRootElement
-@XmlSeeAlso({Ljubimac.class, Poseta.class, Usluga.class})
+@XmlSeeAlso({Ljubimac.class, Poseta.class, Usluga.class, Search.class})
 public class Request implements Serializable{
     private Korisnik korisnik;
     private Object requestObject;

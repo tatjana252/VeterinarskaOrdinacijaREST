@@ -68,19 +68,22 @@ public class KorisnikFacadeREST extends AbstractFacade<Korisnik> {
     public Response obrisi(Request request) {return null;
     }
 
-    @Override
-    public Response ucitajSve() {
-        return null;
-    }
+  
 
     @Override
     public Response prikazi(Request request) {
         return null;
     }
 
+
     @Override
-    public Response pretrazi(Search search) {
-        return null;
+    public Response ucitajSve(Request request) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Response pretrazi(Request request) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 

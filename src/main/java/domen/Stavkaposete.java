@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlTransient;
 public class Stavkaposete implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @EmbeddedId  
+    @EmbeddedId
     protected StavkaposetePK stavkaposetePK;
     @Size(max = 1000)
     @Column(name = "opis", length = 1000)
@@ -48,7 +48,7 @@ public class Stavkaposete implements Serializable {
     @ManyToOne(optional = false)
     @MapsId("posetaid")
     private Poseta poseta;
-
+    
     public Stavkaposete() {
     }
 
@@ -84,6 +84,7 @@ public class Stavkaposete implements Serializable {
         this.usluga = usluga;
     }
 
+    @XmlTransient
     public Poseta getPoseta() {
         return poseta;
     }
@@ -116,5 +117,5 @@ public class Stavkaposete implements Serializable {
     public String toString() {
         return "domen.Stavkaposete[ stavkaposetePK=" + stavkaposetePK + " ]";
     }
-    
+
 }

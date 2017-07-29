@@ -42,11 +42,11 @@ public abstract class AbstractFacade<T> {
 
     public abstract Response obrisi(Request request);
 
-    public abstract Response ucitajSve();
+    public abstract Response ucitajSve(Request request);
 
     public abstract Response prikazi(Request request);
     
-    public abstract Response pretrazi(Search search);
+    public abstract Response pretrazi(Request request);
 
     protected void checkIfUserIsLoggedIn(Korisnik korisnik) throws Exception{
         Korisnik k = (Korisnik) em.createQuery("SELECT k FROM Korisnik k WHERE k.korisnikid = :korisnikid and k.pass = :pass").setParameter("korisnikid", korisnik.getKorisnikid()).setParameter("pass", korisnik.getPass()).getSingleResult();

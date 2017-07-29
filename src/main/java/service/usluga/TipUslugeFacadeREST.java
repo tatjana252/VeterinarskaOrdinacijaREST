@@ -50,11 +50,12 @@ public class TipUslugeFacadeREST extends AbstractFacade<Tipusluge> {
         super(Tipusluge.class);
     }
 
-    @GET
+    @POST
     @Path("ucitajsve")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_XML)
     @Override
-    public Response ucitajSve() {
+    public Response ucitajSve(Request request) {
         try {
             List<Tipusluge> tipoviUsluge = em.createQuery("SELECT tu FROM Tipusluge tu").getResultList();
             GenericEntity<List<Tipusluge>> ge = new GenericEntity<List<Tipusluge>>(tipoviUsluge) {
@@ -68,6 +69,7 @@ public class TipUslugeFacadeREST extends AbstractFacade<Tipusluge> {
 
     @POST
     @Path("prikazi")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_XML)
     @Override
     public Response prikazi(Request request) {
@@ -103,7 +105,7 @@ public class TipUslugeFacadeREST extends AbstractFacade<Tipusluge> {
     }
 
     @Override
-    public Response pretrazi(Search search) {
+    public Response pretrazi(Request request) {
         return null;
     }
 
