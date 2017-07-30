@@ -61,18 +61,12 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
                 throw new Exception();
             }
             Poseta poseta = (Poseta) request.getRequestObject();
-
             if (em.find(Ljubimac.class, poseta.getLjubimacid().getLjubimacid()) == null) {
                 throw new Exception();
             }
-
-            System.out.println("Da li se posalje lista " + poseta.getStavkaposeteList());
+            poseta.setPosetaid(0);
             for (Stavkaposete stavkaposete : poseta.getStavkaposeteList()) {
-                stavkaposete.setStavkaposetePK(new StavkaposetePK());
-                System.out.println(stavkaposete.getUsluga());
                 stavkaposete.setPoseta(poseta);
-                System.out.println("Ovo je poseta" + stavkaposete.getPoseta());
-//                em.persist(stavkaposete);
             }
             em.persist(poseta);
             em.flush();
@@ -112,8 +106,20 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
     }
 
     @Override
+    @POST
+    @Path("prikazi")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response prikazi(Request request) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            checkIfUserIsLoggedIn(request.getKorisnik());
+            Poseta poseta = (Poseta) request.getRequestObject();
+            poseta = em.find(Poseta.class, poseta.getPosetaid());
+            return Response.ok(poseta).build();
+        } catch (Exception ex) {
+            String odg = "Sistem ne može da prikaže posetu!";
+            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+        }
     }
 
     @Override
@@ -128,7 +134,6 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
                 Object value = en.getValue();
                 if (key.contains("datum")) {
                     String[] dt = value.toString().split("\\.");
-                    System.out.println("L"+dt.length);
                     String datumSQL = "";
                     if (dt.length > 0) {
                         for (int i = dt.length - 1; i >= 0; i--) {
@@ -139,15 +144,12 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
                         datumSQL += value.toString();
                     }
                     datumSQL = datumSQL.replaceAll("-$", "");
-                    System.out.println("DATUMSQL " + datumSQL);
-                    System.out.println(key + datumSQL);
                     ((Search) request.getRequestObject()).getFilters().replace(key, datumSQL);
                 }
             }
             List<Poseta> posete = search((Search) request.getRequestObject());
             GenericEntity<List<Poseta>> ge = new GenericEntity<List<Poseta>>(posete) {
             };
-            System.out.println("poslati je " + posete.size());
             return Response.ok(ge).build();
         } catch (NoResultException e) {
             Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, e);
