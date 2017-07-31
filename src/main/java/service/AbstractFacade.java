@@ -8,9 +8,13 @@ package service;
 import domen.Korisnik;
 import domen.Ljubimac;
 import domen.Request;
+
 import domen.Search;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
+import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -107,5 +111,11 @@ public abstract class AbstractFacade<T> {
         }
         return query;
     }
+     
+     
+     protected String createMessage(String language, String message){
+         ResourceBundle bundle = ResourceBundle.getBundle("internationalization.messages", new Locale(language));
+          return bundle.getString(message);
+     }
     
 }

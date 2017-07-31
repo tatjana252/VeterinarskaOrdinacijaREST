@@ -110,10 +110,10 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
                 throw new Exception();
             }
             em.persist(usluga);
-            return Response.ok("Usluga je sačuvana!").build();
+            return Response.ok(createMessage(request.getLanguage(), "service_saved")).build();
         } catch (Exception e) {
             Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, e);
-            String odg = "Sistem ne može da sačuva uslugu!";
+            String odg = createMessage(request.getLanguage(), "service_not_saved");
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }

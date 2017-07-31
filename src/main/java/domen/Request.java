@@ -19,6 +19,23 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 public class Request implements Serializable{
     private Korisnik korisnik;
     private Object requestObject;
+    private String language;
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public Request(Korisnik korisnik, Object requestObject, String jezik) {
+        this.korisnik = korisnik;
+        this.requestObject = requestObject;
+        this.language = jezik;
+    }
+    
+    
 
     public Request() {
     }
