@@ -62,7 +62,7 @@ public class VlasnikFacadeREST extends AbstractFacade<Vlasnik> {
     @Path("vratisve")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response ucitajSve(Request request) {
+    public Response countAll(Request request) {
         try {
             checkIfUserIsLoggedIn(request.getKorisnik());
             List<Vlasnik> vlasnici = em.createQuery("SELECT v FROM Vlasnik v").getResultList();

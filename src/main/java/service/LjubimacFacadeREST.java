@@ -6,11 +6,14 @@
 package service;
 
 import domen.Ljubimac;
+import domen.LjubimacSaPosetama;
 import domen.Poseta;
 import domen.Request;
 import domen.Search;
+import domen.Usluga;
 import domen.Vlasnik;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +42,7 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
 
     public LjubimacFacadeREST() {
         super(Ljubimac.class);
-        
+
     }
 
     @POST
@@ -62,10 +65,13 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
                 entity.setVlasnikid(vlasnik);
             }
             em.persist(entity);
-            return Response.ok("Ljubimac je sačuvan!").build();
+            em.flush();
+            loggerWrapper.getLogger().log(Level.INFO, "user_pet_saved", new Object[]{request.getKorisnik().getKorisnikid(), entity.getLjubimacid() + " " + entity.getIme()});
+            return Response.ok(createMessage(request.getLanguage(), "pet_saved")).build();
+
         } catch (Exception e) {
-            Logger.getLogger(LjubimacFacadeREST.class.getName()).log(Level.SEVERE, null, e);
-            String odg = "Ljubimac nije sačuvan!";
+            loggerWrapper.getLogger().log(Level.WARNING, "user_pet_not_saved", new Object[]{request.getKorisnik().getKorisnikid()});
+            String odg = createMessage(request.getLanguage(), "pet_not_saved");
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }
@@ -88,13 +94,11 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Override
-    public Response ucitajSve(Request request) {
+    public Response countAll(Request request) {
         try {
             checkIfUserIsLoggedIn(request.getKorisnik());
-            List<Ljubimac> usluge = em.createQuery("SELECT lj FROM Ljubimac lj ORDER BY lj.ime ASC").getResultList();
-            GenericEntity<List<Ljubimac>> ge = new GenericEntity<List<Ljubimac>>(usluge) {
-            };
-            return Response.ok(ge).build();
+            String ljubimci = String.valueOf(em.createQuery("SELECT lj FROM Ljubimac lj ORDER BY lj.ime ASC").getResultList().size());
+            return Response.ok(ljubimci).build();
         } catch (NoResultException ne) {
             String odg = "Sistem ne može da učita ljubimce!";
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
@@ -113,26 +117,19 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
         try {
             Ljubimac ljubimac = (Ljubimac) request.getRequestObject();
             Ljubimac lj = (Ljubimac) em.createQuery("SELECT lj FROM Ljubimac lj WHERE lj.ljubimacid = :ljubimacid").setParameter("ljubimacid", ljubimac.getLjubimacid()).getSingleResult();
-            GenericEntity<List<Poseta>> gt = new GenericEntity<List<Poseta>>(lj.getPosetaList()) {
+            LjubimacSaPosetama ljsp = new LjubimacSaPosetama(lj, lj.getPosetaList());
+            GenericEntity<LjubimacSaPosetama> gt = new GenericEntity<LjubimacSaPosetama>(ljsp) {
             };
+
+            loggerWrapper.getLogger().log(Level.INFO, "user_show_pet", new Object[]{request.getKorisnik().getKorisnikid(), ((Ljubimac) request.getRequestObject()).getLjubimacid() + " " + ((Ljubimac) request.getRequestObject()).getIme()});
             return Response.ok(gt).build();
-        } catch (NoResultException ne) {
-            Logger.getLogger(LjubimacFacadeREST.class.getName()).log(Level.SEVERE, null, ne);
-            List<Poseta> posete = new ArrayList<>();
-            GenericEntity<List<Poseta>> gt = new GenericEntity<List<Poseta>>(posete) {
-            };
-            return Response.ok(gt).build();
-        } catch (Exception ne) {
-            Logger.getLogger(LjubimacFacadeREST.class.getName()).log(Level.SEVERE, null, ne);
-            String odg = "Sistem ne može da prikaze ljubimca!";
+        }  catch (Exception ne) {
+            String odg = createMessage(request.getLanguage(), "show_pet_error");
+            loggerWrapper.getLogger().log(Level.WARNING, "user_pet_service_error", new Object[]{request.getKorisnik().getKorisnikid(), ((Ljubimac) request.getRequestObject()).getLjubimacid() + " " + ((Ljubimac) request.getRequestObject()).getIme()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }
 
-    @POST
-    @Path("izmeni")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Override
     public Response izmeni(domen.Request request) {
         try {
@@ -147,11 +144,14 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
                         .setParameter("prezime", vlasnik.getPrezime())
                         .getSingleResult();
                 ljubimac.setVlasnikid(vlasnik);
+
             }
             em.merge(ljubimac);
-            return Response.ok().build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_pet_changed", new Object[]{request.getKorisnik().getKorisnikid(), (ljubimac.getLjubimacid() + " " + ljubimac.getIme())});
+            return Response.ok(createMessage(request.getLanguage(), "pet_changed")).build();
         } catch (Exception ne) {
-            String odg = "Sistem ne može da prikaze ljubimca!";
+            String odg = createMessage(request.getLanguage(), "pet_not_changed");
+            loggerWrapper.getLogger().log(Level.WARNING, "user_pet_not_changed", new Object[]{request.getKorisnik().getKorisnikid(), ((Ljubimac) request.getRequestObject()).getLjubimacid() + " " + ((Ljubimac) request.getRequestObject()).getIme()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }
@@ -161,11 +161,9 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
         return em;
     }
 
-
     @Override
     public Response obrisi(domen.Request request) {
         return null;
     }
-
 
 }

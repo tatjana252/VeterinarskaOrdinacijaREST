@@ -7,6 +7,7 @@ package service.korisnik;
 
 import domen.Korisnik;
 import domen.Request;
+import java.util.logging.Level;
 import javax.ejb.Stateless;
 import javax.persistence.NoResultException;
 import javax.ws.rs.Consumes;
@@ -34,15 +35,17 @@ public class KorisnikFacadeREST extends AbstractFacade<Korisnik> {
     @Path("login")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public Response login(Korisnik k) throws Exception {
+    public Response login(Request request) throws Exception {
         try {
+            Korisnik k = request.getKorisnik();
             Korisnik korisnik = (Korisnik) getEntityManager().createQuery("SELECT k from Korisnik k WHERE k.korisnikid = :korisnikid AND k.pass = :pass")
                     .setParameter("korisnikid", k.getKorisnikid())
                     .setParameter("pass", k.getPass()).getSingleResult();
+            loggerWrapper.getLogger().log(Level.INFO, "user_login", new Object[]{request.getKorisnik()});
             return Response.ok(korisnik).build();
         } catch (NoResultException ne) {
-            String odg = "Podaci nisu dobri!";
-            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_login_failed", new Object[]{request.getKorisnik().getKorisnikid(), request.getKorisnik().getPass()});
+            return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "login_failed")).build();
         }
 
     }
@@ -69,7 +72,7 @@ public class KorisnikFacadeREST extends AbstractFacade<Korisnik> {
 
 
     @Override
-    public Response ucitajSve(Request request) {
+    public Response countAll(Request request) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

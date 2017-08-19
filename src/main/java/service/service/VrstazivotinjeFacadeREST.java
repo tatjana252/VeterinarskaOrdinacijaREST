@@ -5,9 +5,11 @@
  */
 package service.service;
 
+import domen.Ljubimac;
 import domen.Request;
 import domen.Vrstazivotinje;
 import java.util.List;
+import java.util.logging.Level;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -63,14 +65,15 @@ public class VrstazivotinjeFacadeREST extends AbstractFacade<Vrstazivotinje> {
     @Path("vratisve")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response ucitajSve(Request request) {
+    public Response countAll(Request request) {
         try {
             List<Vrstazivotinje> vrstazivotinje = em.createQuery("SELECT vz FROM Vrstazivotinje vz").getResultList();
             GenericEntity<List<Vrstazivotinje>> ge = new GenericEntity<List<Vrstazivotinje>>(vrstazivotinje) {
             };
             return Response.ok(ge).build();
         } catch (NoResultException ne) {
-            String odg = "Sistem ne može da učita vrste životinja!";
+            loggerWrapper.getLogger().log(Level.WARNING, "get_pet_species_error", new Object[]{request.getKorisnik().getKorisnikid()});
+            String odg = createMessage(request.getLanguage(), "get_pet_species_error");
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }

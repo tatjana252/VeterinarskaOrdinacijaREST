@@ -11,11 +11,13 @@ import domen.Request;
 import domen.Search;
 import domen.Stavkaposete;
 import domen.StavkaposetePK;
+import domen.Vlasnik;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -26,6 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import logger.LoggerWrapper;
 import service.AbstractFacade;
 import service.usluga.UslugaFacadeREST;
 
@@ -70,11 +73,11 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
             }
             em.persist(poseta);
             em.flush();
-            return Response.ok("Usluga je sačuvana!").build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_pet_visit_saved", new Object[]{request.getKorisnik(), poseta.getPosetaid()});
+            return Response.ok(createMessage(request.getLanguage(), "pet_visit_saved")).build();
         } catch (Exception e) {
-            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, e);
-            String odg = "Sistem ne može da sačuva uslugu!";
-            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_pet_visit_saved", new Object[]{request.getKorisnik(), ((Poseta) request.getRequestObject()).getDatum(), ((Poseta) request.getRequestObject()).getLjubimacid(), ((Poseta) request.getRequestObject()).getStavkaposeteList()});
+            return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "pet_visit_not_saved")).build();
         }
     }
 
@@ -93,15 +96,15 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
     @Path("vratisve")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response ucitajSve(Request request) {
+    public Response countAll(Request request) {
         try {
-            List<Poseta> usluge = em.createQuery("SELECT p FROM Poseta p").getResultList();
-            GenericEntity<List<Poseta>> ge = new GenericEntity<List<Poseta>>(usluge) {
-            };
-            return Response.ok(ge).build();
-        } catch (NoResultException ne) {
-            String odg = "Sistem ne može da učita usluge!";
-            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+            checkIfUserIsLoggedIn(request.getKorisnik());
+            String posete = String.valueOf(em.createQuery("SELECT p FROM Poseta p").getResultList().size());
+            loggerWrapper.getLogger().log(Level.FINE, "user_get_pet_visits", new Object[]{request.getKorisnik()});
+            return Response.ok(posete).build();
+        } catch (Exception ne) {
+            loggerWrapper.getLogger().log(Level.INFO, "user_get_pet_visits_failed", new Object[]{request.getKorisnik()});
+            return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "get_pet_visits_failed")).build();
         }
     }
 
@@ -115,10 +118,11 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
             checkIfUserIsLoggedIn(request.getKorisnik());
             Poseta poseta = (Poseta) request.getRequestObject();
             poseta = em.find(Poseta.class, poseta.getPosetaid());
+            loggerWrapper.getLogger().log(Level.FINE, "user_show_pet_visit", new Object[]{request.getKorisnik(), poseta.getPosetaid()});
             return Response.ok(poseta).build();
         } catch (Exception ex) {
-            String odg = "Sistem ne može da prikaže posetu!";
-            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_show_pet_visit_failed", new Object[]{request.getKorisnik()});
+            return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "show_pet_visit_failed")).build();
         }
     }
 
@@ -150,11 +154,12 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
             List<Poseta> posete = search((Search) request.getRequestObject());
             GenericEntity<List<Poseta>> ge = new GenericEntity<List<Poseta>>(posete) {
             };
+            
+            loggerWrapper.getLogger().log(Level.FINE, "user_pet_visit_search", new Object[]{request.getKorisnik()});
             return Response.ok(ge).build();
         } catch (NoResultException e) {
-            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, e);
-            String odg = "Sistem ne može da učita usluge!";
-            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_pet_visit_search_failed", new Object[]{request.getKorisnik()});
+            return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "pet_visit_search_failed")).build();
         }
     }
 

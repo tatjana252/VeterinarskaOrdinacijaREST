@@ -10,6 +10,7 @@ import domen.Search;
 import domen.Tipusluge;
 import domen.Usluga;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
@@ -110,9 +111,11 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
                 throw new Exception();
             }
             em.persist(usluga);
+            loggerWrapper.getLogger().log(Level.INFO, "user_service_saved", new Object[]{request.getKorisnik().getKorisnikid(), usluga.getUslugaid() + " " + usluga.getNaziv()});
             return Response.ok(createMessage(request.getLanguage(), "service_saved")).build();
-        } catch (Exception e) {
-            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, e);
+        } catch (Exception ex) {
+            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            loggerWrapper.getLogger().log(Level.WARNING, "user_service_not_saved", new Object[]{request.getKorisnik().getKorisnikid()});
             String odg = createMessage(request.getLanguage(), "service_not_saved");
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
@@ -126,11 +129,11 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
         try {
             checkIfUserIsLoggedIn(request.getKorisnik());
             em.merge((Usluga) request.getRequestObject());
-            return Response.ok("Podaci o usluzi su izmenjeni!").build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_service_changed", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
+            return Response.ok(createMessage(request.getLanguage(), "service_changed")).build();
         } catch (Exception ex) {
-             Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
-           
-            String odg = "Sistem ne može da izmeni uslugu!";
+            String odg = createMessage(request.getLanguage(), "service_not_changed");
+            loggerWrapper.getLogger().log(Level.WARNING, "user_service_not_changed", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
 
@@ -145,10 +148,13 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
             checkIfUserIsLoggedIn(request.getKorisnik());
             Usluga u = em.find(Usluga.class, ((Usluga) request.getRequestObject()).getUslugaid());
             em.remove(u);
-            return Response.ok("Usluga je obrisana!").build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_service_deleted", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
+            return Response.ok(createMessage(request.getLanguage(), "service_deleted")).build();
         } catch (Exception ex) {
-            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
-            String odg = "Sistem ne može da obriše uslugu!";
+                  Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+     
+            String odg = createMessage(request.getLanguage(), "service_not_deleted");
+            loggerWrapper.getLogger().log(Level.WARNING, "user_service_not_deleted", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }
@@ -158,14 +164,18 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
     @Path("vratisve")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response ucitajSve(Request request) {
+    public Response countAll(Request request) {
         try {
             List<Usluga> usluge = em.createQuery("SELECT u FROM Usluga u ORDER BY u.tipuslugeid ASC").getResultList();
             GenericEntity<List<Usluga>> ge = new GenericEntity<List<Usluga>>(usluge) {
             };
+            System.out.println("ovde");
             return Response.ok(ge).build();
-        } catch (NoResultException ne) {
-            String odg = "Sistem ne može da učita usluge!";
+        } catch (NoResultException ex) {
+            System.out.println("ovde");
+            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            String odg = createMessage(request.getLanguage(), "service_search_error");
+            loggerWrapper.getLogger().log(Level.WARNING, "user_service_search_error", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }
@@ -184,9 +194,11 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
             Usluga u = (Usluga) em.createQuery("SELECT u FROM Usluga u WHERE u.uslugaid = :uslugaid").setParameter("uslugaid", usluga.getUslugaid()).getSingleResult();
             GenericEntity<Usluga> gt = new GenericEntity<Usluga>(u) {
             };
+            loggerWrapper.getLogger().log(Level.INFO, "user_show_service", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.ok(gt).build();
         } catch (Exception ne) {
-            String odg = "Sistem ne može da prikaze uslugu!";
+            String odg = createMessage(request.getLanguage(), "show_service_error");
+            loggerWrapper.getLogger().log(Level.WARNING, "user_show_service_error", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }

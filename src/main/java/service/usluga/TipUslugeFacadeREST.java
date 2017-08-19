@@ -5,9 +5,11 @@
  */
 package service.usluga;
 
+import domen.Ljubimac;
 import domen.Request;
 import domen.Tipusluge;
 import java.util.List;
+import java.util.logging.Level;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -41,14 +43,16 @@ public class TipUslugeFacadeREST extends AbstractFacade<Tipusluge> {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_XML)
     @Override
-    public Response ucitajSve(Request request) {
+    public Response countAll(Request request) {
         try {
             List<Tipusluge> tipoviUsluge = em.createQuery("SELECT tu FROM Tipusluge tu").getResultList();
             GenericEntity<List<Tipusluge>> ge = new GenericEntity<List<Tipusluge>>(tipoviUsluge) {
             };
             return Response.ok(ge).build();
         } catch (NoResultException ne) {
-            String odg = "Sistem ne može da učita tipove usluga!";
+             loggerWrapper.getLogger().log(Level.WARNING, "get_service_type_error", new Object[]{request.getKorisnik().getKorisnikid(), ((Ljubimac) request.getRequestObject()).getLjubimacid() + " " + ((Ljubimac) request.getRequestObject()).getIme()});
+          
+            String odg = createMessage(request.getLanguage(), "get_service_type_error");
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }

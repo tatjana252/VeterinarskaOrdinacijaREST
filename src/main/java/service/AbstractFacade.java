@@ -15,18 +15,28 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.swing.SortOrder;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import logger.LoggerWrapper;
 
 /**
  *
  * @author hp
  */
 public abstract class AbstractFacade<T> {
-    
+
+    @Inject
+    protected LoggerWrapper loggerWrapper;
+
     @PersistenceContext(unitName = "VeterinarskaOrdinacijaREST")
     private EntityManager em;
 
@@ -36,37 +46,42 @@ public abstract class AbstractFacade<T> {
         this.entityClass = entityClass;
     }
 
-    protected EntityManager getEntityManager(){
+    protected EntityManager getEntityManager() {
         return em;
-    };
+    }
+
+    ;
     
     public abstract Response sacuvaj(Request request);
-    
+
+    @POST
+    @Path("izmeni")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public abstract Response izmeni(Request request);
 
     public abstract Response obrisi(Request request);
 
-    public abstract Response ucitajSve(Request request);
+    public abstract Response countAll(Request request);
 
     public abstract Response prikazi(Request request);
-    
+
     public abstract Response pretrazi(Request request);
 
-    protected void checkIfUserIsLoggedIn(Korisnik korisnik) throws Exception{
+    protected void checkIfUserIsLoggedIn(Korisnik korisnik) throws Exception {
         Korisnik k = (Korisnik) em.createQuery("SELECT k FROM Korisnik k WHERE k.korisnikid = :korisnikid and k.pass = :pass").setParameter("korisnikid", korisnik.getKorisnikid()).setParameter("pass", korisnik.getPass()).getSingleResult();
-        if(k == null){
+        if (k == null) {
             throw new Exception("Niste ulogovani!");
         }
     }
-    
-    protected List<T> search(Search search){
+
+    protected List<T> search(Search search) {
         String nazivKlase = entityClass.getSimpleName();
         String nazivKlaseLowerCase = nazivKlase.toLowerCase();
-        String query = "SELECT "+nazivKlaseLowerCase+ " FROM "+ nazivKlase+" "+nazivKlaseLowerCase +" WHERE ";
+        String query = "SELECT " + nazivKlaseLowerCase + " FROM " + nazivKlase + " " + nazivKlaseLowerCase + " WHERE ";
         for (Map.Entry<String, Object> entry : search.getFilters().entrySet()) {
             String key = entry.getKey();
-            query += " CAST("+nazivKlaseLowerCase+"." + key + " AS CHAR(255))";
-//            query += ""+nazivKlaseLowerCase+"." + key + " ";
+            query += " CAST(" + nazivKlaseLowerCase + "." + key + " AS CHAR(255))";
             key = key.replace(".", "");
             query += " LIKE :" + key;
             query += " AND ";
@@ -74,7 +89,7 @@ public abstract class AbstractFacade<T> {
         query = query.replaceAll(" WHERE $", "");
         query = query.replaceAll(" AND $", "");
         if (search.getSortField() != null) {
-            query += " ORDER BY "+nazivKlaseLowerCase+"." + search.getSortField();
+            query += " ORDER BY " + nazivKlaseLowerCase + "." + search.getSortField();
             if (SortOrder.DESCENDING.equals(search.getSortOrder())) {
                 query += " DESC";
             }
@@ -88,14 +103,14 @@ public abstract class AbstractFacade<T> {
         }
         return q.setFirstResult(search.getFirst()).setMaxResults(search.getPageSize()).getResultList();
     }
-    
-     protected String createSearchQuery(Search search){
+
+    protected String createSearchQuery(Search search) {
         String nazivKlase = entityClass.getSimpleName();
         String nazivKlaseLowerCase = nazivKlase.toLowerCase();
-        String query = "SELECT "+nazivKlaseLowerCase+ " FROM "+ nazivKlase+" "+nazivKlaseLowerCase +" WHERE ";
+        String query = "SELECT " + nazivKlaseLowerCase + " FROM " + nazivKlase + " " + nazivKlaseLowerCase + " WHERE ";
         for (Map.Entry<String, Object> entry : search.getFilters().entrySet()) {
             String key = entry.getKey();
-            query += " CAST("+nazivKlaseLowerCase+"." + key + " AS CHAR(255))";
+            query += " CAST(" + nazivKlaseLowerCase + "." + key + " AS CHAR(255))";
 //            query += ""+nazivKlaseLowerCase+"." + key + " ";
             key = key.replace(".", "");
             query += " LIKE :" + key;
@@ -104,18 +119,23 @@ public abstract class AbstractFacade<T> {
         query = query.replaceAll(" WHERE $", "");
         query = query.replaceAll(" AND $", "");
         if (search.getSortField() != null) {
-            query += " ORDER BY "+nazivKlaseLowerCase+"." + search.getSortField();
+            query += " ORDER BY " + nazivKlaseLowerCase + "." + search.getSortField();
             if (SortOrder.DESCENDING.equals(search.getSortOrder())) {
                 query += " DESC";
             }
         }
         return query;
     }
-     
-     
-     protected String createMessage(String language, String message){
-         ResourceBundle bundle = ResourceBundle.getBundle("internationalization.messages", new Locale(language));
-          return bundle.getString(message);
-     }
-    
+
+    protected String createMessage(String language, String message) {
+        Locale locale;
+        if (language.equals("sr")) {
+            locale = new Locale("sr", "RS");
+        } else {
+            locale = new Locale(language);
+        }
+        ResourceBundle bundle = ResourceBundle.getBundle("internationalization.messages", locale);
+        return bundle.getString(message);
+    }
+
 }
