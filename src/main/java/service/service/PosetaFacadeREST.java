@@ -72,11 +72,12 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
                 stavkaposete.setPoseta(poseta);
             }
             em.persist(poseta);
+            
             em.flush();
-            loggerWrapper.getLogger().log(Level.INFO, "user_pet_visit_saved", new Object[]{request.getKorisnik(), poseta.getPosetaid()});
+            loggerWrapper.getLogger().log(Level.INFO, "user_pet_visit_saved", new Object[]{request.getKorisnik().getKorisnikid(), poseta.getPosetaid()});
             return Response.ok(createMessage(request.getLanguage(), "pet_visit_saved")).build();
         } catch (Exception e) {
-            loggerWrapper.getLogger().log(Level.INFO, "user_pet_visit_saved", new Object[]{request.getKorisnik(), ((Poseta) request.getRequestObject()).getDatum(), ((Poseta) request.getRequestObject()).getLjubimacid(), ((Poseta) request.getRequestObject()).getStavkaposeteList()});
+            loggerWrapper.getLogger().log(Level.INFO, "user_pet_visit_saved", new Object[]{request.getKorisnik().getKorisnikid(), ((Poseta) request.getRequestObject()).getDatum(), ((Poseta) request.getRequestObject()).getLjubimacid(), ((Poseta) request.getRequestObject()).getStavkaposeteList()});
             return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "pet_visit_not_saved")).build();
         }
     }
@@ -118,10 +119,10 @@ public class PosetaFacadeREST extends AbstractFacade<Poseta> {
             checkIfUserIsLoggedIn(request.getKorisnik());
             Poseta poseta = (Poseta) request.getRequestObject();
             poseta = em.find(Poseta.class, poseta.getPosetaid());
-            loggerWrapper.getLogger().log(Level.FINE, "user_show_pet_visit", new Object[]{request.getKorisnik(), poseta.getPosetaid()});
+            loggerWrapper.getLogger().log(Level.FINE, "user_show_pet_visit", new Object[]{request.getKorisnik().getKorisnikid(), poseta.getPosetaid()});
             return Response.ok(poseta).build();
         } catch (Exception ex) {
-            loggerWrapper.getLogger().log(Level.INFO, "user_show_pet_visit_failed", new Object[]{request.getKorisnik()});
+            loggerWrapper.getLogger().log(Level.INFO, "user_show_pet_visit_failed", new Object[]{request.getKorisnik().getKorisnikid()});
             return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "show_pet_visit_failed")).build();
         }
     }

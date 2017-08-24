@@ -128,10 +128,17 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
     public Response izmeni(Request request) {
         try {
             checkIfUserIsLoggedIn(request.getKorisnik());
+            System.out.println(em.createQuery("SELECT u FROM Usluga u WHERE u.uslugaid = :uslugaid").setParameter("uslugaid", ((Usluga)request.getRequestObject()).getUslugaid()).getSingleResult());
+            if(em.find(Usluga.class, ((Usluga)request.getRequestObject()).getUslugaid()) == null){
+                throw new Exception();
+            }
             em.merge((Usluga) request.getRequestObject());
             loggerWrapper.getLogger().log(Level.INFO, "user_service_changed", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.ok(createMessage(request.getLanguage(), "service_changed")).build();
+            
         } catch (Exception ex) {
+            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+
             String odg = createMessage(request.getLanguage(), "service_not_changed");
             loggerWrapper.getLogger().log(Level.WARNING, "user_service_not_changed", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
@@ -145,14 +152,21 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response obrisi(Request request) {
         try {
+            System.out.println("obrisi");
             checkIfUserIsLoggedIn(request.getKorisnik());
-            Usluga u = em.find(Usluga.class, ((Usluga) request.getRequestObject()).getUslugaid());
+            Usluga usluga = (Usluga) request.getRequestObject();
+            Usluga u = em.find(Usluga.class, usluga.getUslugaid());
             em.remove(u);
+                System.out.println("PRVA"+em.find(Usluga.class, usluga.getUslugaid()));
+        
+            em.flush();
+                System.out.println("DRUGA"+em.find(Usluga.class, usluga.getUslugaid()));
+        
             loggerWrapper.getLogger().log(Level.INFO, "user_service_deleted", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.ok(createMessage(request.getLanguage(), "service_deleted")).build();
         } catch (Exception ex) {
-                  Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
-     
+            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+
             String odg = createMessage(request.getLanguage(), "service_not_deleted");
             loggerWrapper.getLogger().log(Level.WARNING, "user_service_not_deleted", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
@@ -169,10 +183,8 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
             List<Usluga> usluge = em.createQuery("SELECT u FROM Usluga u ORDER BY u.tipuslugeid ASC").getResultList();
             GenericEntity<List<Usluga>> ge = new GenericEntity<List<Usluga>>(usluge) {
             };
-            System.out.println("ovde");
             return Response.ok(ge).build();
         } catch (NoResultException ex) {
-            System.out.println("ovde");
             Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
             String odg = createMessage(request.getLanguage(), "service_search_error");
             loggerWrapper.getLogger().log(Level.WARNING, "user_service_search_error", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
@@ -194,11 +206,12 @@ public class UslugaFacadeREST extends AbstractFacade<Usluga> {
             Usluga u = (Usluga) em.createQuery("SELECT u FROM Usluga u WHERE u.uslugaid = :uslugaid").setParameter("uslugaid", usluga.getUslugaid()).getSingleResult();
             GenericEntity<Usluga> gt = new GenericEntity<Usluga>(u) {
             };
-            loggerWrapper.getLogger().log(Level.INFO, "user_show_service", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
+            loggerWrapper.getLogger().log(Level.INFO, "user_show_service", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + u.getNaziv()});
             return Response.ok(gt).build();
         } catch (Exception ne) {
             String odg = createMessage(request.getLanguage(), "show_service_error");
-            loggerWrapper.getLogger().log(Level.WARNING, "user_show_service_error", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + ((Usluga) request.getRequestObject()).getNaziv()});
+            Logger.getLogger(UslugaFacadeREST.class.getName()).log(Level.SEVERE, null, ne);
+            //loggerWrapper.getLogger().log(Level.WARNING, "user_show_service_error", new Object[]{request.getKorisnik().getKorisnikid()});
             return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }

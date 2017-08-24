@@ -41,7 +41,7 @@ public class KorisnikFacadeREST extends AbstractFacade<Korisnik> {
             Korisnik korisnik = (Korisnik) getEntityManager().createQuery("SELECT k from Korisnik k WHERE k.korisnikid = :korisnikid AND k.pass = :pass")
                     .setParameter("korisnikid", k.getKorisnikid())
                     .setParameter("pass", k.getPass()).getSingleResult();
-            loggerWrapper.getLogger().log(Level.INFO, "user_login", new Object[]{request.getKorisnik()});
+            loggerWrapper.getLogger().log(Level.INFO, "user_login", new Object[]{request.getKorisnik().getKorisnikid()});
             return Response.ok(korisnik).build();
         } catch (NoResultException ne) {
             loggerWrapper.getLogger().log(Level.INFO, "user_login_failed", new Object[]{request.getKorisnik().getKorisnikid(), request.getKorisnik().getPass()});

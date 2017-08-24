@@ -55,6 +55,9 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
             checkIfUserIsLoggedIn(request.getKorisnik());
             Ljubimac entity = (Ljubimac) request.getRequestObject();
             Vlasnik vlasnik = entity.getVlasnikid();
+            if(entity.getSifracipa().isEmpty()){
+                entity.setSifracipa(null);
+            }
             if (entity.getVlasnikid().getVlasnikid() == -1) {
                 em.persist(vlasnik);
                 vlasnik = (Vlasnik) em.createQuery("SELECT v FROM Vlasnik v WHERE v.jmbg = :jmbg AND v.ime = :ime AND v.prezime = :prezime")
@@ -116,11 +119,10 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
     public Response prikazi(domen.Request request) {
         try {
             Ljubimac ljubimac = (Ljubimac) request.getRequestObject();
-            Ljubimac lj = (Ljubimac) em.createQuery("SELECT lj FROM Ljubimac lj WHERE lj.ljubimacid = :ljubimacid").setParameter("ljubimacid", ljubimac.getLjubimacid()).getSingleResult();
-            LjubimacSaPosetama ljsp = new LjubimacSaPosetama(lj, lj.getPosetaList());
-            GenericEntity<LjubimacSaPosetama> gt = new GenericEntity<LjubimacSaPosetama>(ljsp) {
+           LjubimacSaPosetama lj =(LjubimacSaPosetama) em.find(LjubimacSaPosetama.class, ljubimac.getLjubimacid());
+            em.refresh(lj);
+            GenericEntity<LjubimacSaPosetama> gt = new GenericEntity<LjubimacSaPosetama>(lj) {
             };
-
             loggerWrapper.getLogger().log(Level.INFO, "user_show_pet", new Object[]{request.getKorisnik().getKorisnikid(), ((Ljubimac) request.getRequestObject()).getLjubimacid() + " " + ((Ljubimac) request.getRequestObject()).getIme()});
             return Response.ok(gt).build();
         }  catch (Exception ne) {
@@ -145,6 +147,9 @@ public class LjubimacFacadeREST extends AbstractFacade<Ljubimac> {
                         .getSingleResult();
                 ljubimac.setVlasnikid(vlasnik);
 
+            }
+            if(ljubimac.getSifracipa().isEmpty()){
+                ljubimac.setSifracipa(null);
             }
             em.merge(ljubimac);
             loggerWrapper.getLogger().log(Level.INFO, "user_pet_changed", new Object[]{request.getKorisnik().getKorisnikid(), (ljubimac.getLjubimacid() + " " + ljubimac.getIme())});
