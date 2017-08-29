@@ -16,8 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-
 public class MyLogger {
+
     static private FileHandler fileTxt;
     static private SimpleFormatter formatterTxt;
 
@@ -25,19 +25,19 @@ public class MyLogger {
     static private Formatter formatterHTML;
 
     static public void setup() throws IOException {
-        
+
         // get the global logger to configure it
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
         // suppress the logging output to the console
         logger.setLevel(Level.INFO);
         fileTxt = new FileHandler("C:\\Users\\hp\\Desktop\\LogovanjeInfo.txt", true);
-            
+        fileTxt.setEncoding("UTF-8");
         fileHTML = new FileHandler("C:\\Users\\hp\\Desktop\\Logging.html");
-
+        fileTxt.setEncoding("UTF-8");
         // create a TXT formatter
         formatterHTML = new MyHtmlFormatter();
-        
+
         formatterTxt = new SimpleFormatter();
         fileTxt.setFormatter(formatterHTML);
         logger.addHandler(fileTxt);
@@ -47,6 +47,5 @@ public class MyLogger {
         fileHTML.setFormatter(formatterHTML);
         logger.addHandler(fileHTML);
     }
-    
-    
+
 }

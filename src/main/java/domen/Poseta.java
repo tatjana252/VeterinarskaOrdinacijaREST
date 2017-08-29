@@ -37,7 +37,7 @@ import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
 @Table(name = "poseta")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Poseta.findAll", query = "SELECT p FROM Poseta p")
+    @NamedQuery(name = "Poseta.findAll", query = "SELECT p FROM Poseta p ORDER BY p.datum DESC")
     , @NamedQuery(name = "Poseta.findByPosetaid", query = "SELECT p FROM Poseta p WHERE p.posetaid = :posetaid")
     , @NamedQuery(name = "Poseta.findByDatum", query = "SELECT p FROM Poseta p WHERE p.datum = :datum")})
 public class Poseta implements Serializable {

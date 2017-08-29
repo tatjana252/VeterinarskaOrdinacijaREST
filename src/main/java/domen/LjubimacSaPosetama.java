@@ -94,6 +94,17 @@ public class LjubimacSaPosetama implements Serializable {
     public LjubimacSaPosetama() {
         vrstazivotinjeid = new Vrstazivotinje();
     }
+    
+    public LjubimacSaPosetama(Ljubimac lj) {
+        this.ljubimacid = lj.getLjubimacid();
+        this.ime = lj.getIme();
+        this.datumrodjenja = lj.getDatumrodjenja();
+        this.pol = lj.getPol();
+        this.vlasnikid = lj.getVlasnikid();
+        this.rasa = lj.getRasa();
+        this.posetaList = lj.getPosetaList();
+        this.vrstazivotinjeid = lj.getVrstazivotinjeid();
+    }
 
     public LjubimacSaPosetama(Integer ljubimacid) {
         this.ljubimacid = ljubimacid;

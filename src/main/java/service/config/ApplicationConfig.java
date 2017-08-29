@@ -29,13 +29,7 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
-        resources.add(service.LjubimacFacadeREST.class);
-        resources.add(service.korisnik.KorisnikFacadeREST.class);
-        resources.add(service.service.PosetaFacadeREST.class);
-        resources.add(service.service.VlasnikFacadeREST.class);
-        resources.add(service.service.VrstazivotinjeFacadeREST.class);
-        resources.add(service.usluga.TipUslugeFacadeREST.class);
-        resources.add(service.usluga.UslugaFacadeREST.class);
+        resources.add(service.Kontrolor.class);
     }
     
 }

@@ -3,76 +3,51 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package service;
+package businesslogic.systemoperation;
 
 import domen.Korisnik;
-import domen.Ljubimac;
-import domen.Request;
-
 import domen.Search;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import javax.faces.context.FacesContext;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.swing.SortOrder;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import logger.LoggerWrapper;
 
 /**
  *
- * @author hp
+ * @author student
+ * @param <T>
  */
-public abstract class AbstractFacade<T> {
 
-    @Inject
-    protected LoggerWrapper loggerWrapper;
+public class AbstractSystemOperation<T> {
 
     @PersistenceContext(unitName = "VeterinarskaOrdinacijaREST")
-    private EntityManager em;
-
+    protected EntityManager em;
+     
     private Class<T> entityClass;
 
-    public AbstractFacade(Class<T> entityClass) {
+    public AbstractSystemOperation() {
+    }
+
+    public AbstractSystemOperation(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
-
-    protected EntityManager getEntityManager() {
-        return em;
-    }
-
-    ;
     
-    public abstract Response sacuvaj(Request request);
+    protected Object result = null;
 
-    @POST
-    @Path("izmeni")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public abstract Response izmeni(Request request);
-
-    public abstract Response obrisi(Request request);
-
-    public abstract Response countAll(Request request);
-
-    public abstract Response prikazi(Request request);
-
-    public abstract Response pretrazi(Request request);
-
-    protected void checkIfUserIsLoggedIn(Korisnik korisnik) throws Exception {
-        Korisnik k = (Korisnik) em.createQuery("SELECT k FROM Korisnik k WHERE k.korisnikid = :korisnikid and k.pass = :pass").setParameter("korisnikid", korisnik.getKorisnikid()).setParameter("pass", korisnik.getPass()).getSingleResult();
-        if (k == null) {
-            throw new Exception("Niste ulogovani!");
-        }
+    public Object getResult() {
+        return result;
+    }
+    
+    public  void execute(Object object) throws Exception{
+        
     }
 
     protected List<T> search(Search search) {
@@ -111,7 +86,6 @@ public abstract class AbstractFacade<T> {
         for (Map.Entry<String, Object> entry : search.getFilters().entrySet()) {
             String key = entry.getKey();
             query += " CAST(" + nazivKlaseLowerCase + "." + key + " AS CHAR(255))";
-//            query += ""+nazivKlaseLowerCase+"." + key + " ";
             key = key.replace(".", "");
             query += " LIKE :" + key;
             query += " AND ";
@@ -127,15 +101,6 @@ public abstract class AbstractFacade<T> {
         return query;
     }
 
-    protected String createMessage(String language, String message) {
-        Locale locale;
-        if (language.equals("sr")) {
-            locale = new Locale("sr", "RS");
-        } else {
-            locale = new Locale(language);
-        }
-        ResourceBundle bundle = ResourceBundle.getBundle("internationalization.messages", locale);
-        return bundle.getString(message);
-    }
-
+    
+    
 }

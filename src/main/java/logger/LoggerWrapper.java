@@ -6,6 +6,7 @@
 package logger;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -23,22 +24,20 @@ import mb.MBLog;
 @Singleton
 public class LoggerWrapper {
     
-    @Inject
-    MBLog mbLog;
-    
     private Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME, "internationalization.messages");
     
     @PostConstruct
     public void init(){
         try {
-            new MyLogger().setup();
+            	
+            Locale.setDefault(new Locale("sr", "RS"));
+            MyLogger.setup();
         } catch (IOException ex) {
             Logger.getLogger(LoggerWrapper.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public Logger getLogger() {
-        mbLog.dodajLog("dodajem log");
         return logger;
     }
 

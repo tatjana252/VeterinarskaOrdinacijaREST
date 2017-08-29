@@ -30,16 +30,11 @@ import org.primefaces.context.RequestContext;
  * @author hp
  */
 @Named(value = "mbLog")
-@SessionScoped
+@RequestScoped
 public class MBLog implements Serializable{
 
     private List<String> fileContent;
-    //private String[] poslednjiLogovi;
-    private Queue poslednjiLogovi;
-
-    public Queue getPoslednjiLogovi() {
-        return poslednjiLogovi;
-    }
+   
     
     public MBLog() {
     }
@@ -47,8 +42,8 @@ public class MBLog implements Serializable{
     @PostConstruct
     public void init() {
         try {
+            	
             fileContent = new ArrayList<>();
-            poslednjiLogovi = new LinkedList();
             loadFile("C:\\Users\\hp\\Desktop\\LogovanjeInfo.txt");
         } catch (ParseException ex) {
             Logger.getLogger(MBLog.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,9 +80,5 @@ public class MBLog implements Serializable{
         this.fileContent = fileContent;
     }
 
-    public void dodajLog(String str) {
-        //RequestContext.getCurrentInstance().update(":logForm");
-       // FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add(":logForm");
-        //fileContent.add(e)
-    }
+   
 }
