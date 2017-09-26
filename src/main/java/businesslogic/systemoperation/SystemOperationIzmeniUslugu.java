@@ -13,7 +13,7 @@ import javax.ejb.Stateless;
  * @author hp
  */
 @Stateless
-public class SystemOperationIzmeniUslugu extends AbstractSystemOperation{
+public class SystemOperationIzmeniUslugu extends AbstractSystemOperation {
 
     public SystemOperationIzmeniUslugu() {
         super(Usluga.class);
@@ -22,11 +22,11 @@ public class SystemOperationIzmeniUslugu extends AbstractSystemOperation{
     @Override
     public void execute(Object object) throws Exception {
         Usluga usluga = (Usluga) object;
-        if(em.find(Usluga.class, usluga.getUslugaid()) == null){
-                throw new Exception();
-            }
-            em.merge(usluga);
-           
+        if (em.find(Usluga.class, usluga.getUslugaid()) == null) {
+            throw new Exception();
+        }
+        em.merge(usluga);
+
     }
-    
+
 }

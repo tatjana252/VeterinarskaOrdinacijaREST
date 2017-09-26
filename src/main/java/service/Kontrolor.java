@@ -303,11 +303,15 @@ public class Kontrolor{
             Search search = (Search) request.getRequestObject();
             systemOperationPretraziLjubimce.execute(search);
             List<Ljubimac> result = (List<Ljubimac>) systemOperationPretraziLjubimce.getResult();
+            if(result.isEmpty()){
+                throw new Exception();
+            }
             GenericEntity<List<Ljubimac>> gt = new GenericEntity<List<Ljubimac>>(result) {
             };
             return Response.ok(gt).build();
         } catch (Exception ex) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+             String odg = createMessage(request.getLanguage(), "pet_search_error");
+            return Response.status(Response.Status.NOT_FOUND).entity(odg).build();
         }
     }
     
@@ -323,7 +327,7 @@ public class Kontrolor{
            LjubimacSaPosetama lj = new LjubimacSaPosetama(lju);
             GenericEntity<LjubimacSaPosetama> gt = new GenericEntity<LjubimacSaPosetama>(lj) {
             };
-            loggerWrapper.getLogger().log(Level.INFO, "user_show_pet", new Object[]{request.getKorisnik().getKorisnikid(), ((Ljubimac) request.getRequestObject()).getLjubimacid() + " " + ((Ljubimac) request.getRequestObject()).getIme()});
+          //  loggerWrapper.getLogger().log(Level.INFO, "user_show_pet", new Object[]{request.getKorisnik().getKorisnikid(), ((Ljubimac) request.getRequestObject()).getLjubimacid() + " " + ((Ljubimac) request.getRequestObject()).getIme()});
             return Response.ok(gt).build();
         }  catch (Exception ne) {
             String odg = createMessage(request.getLanguage(), "show_pet_error");
@@ -340,14 +344,17 @@ public class Kontrolor{
         try {
             systemOperationPretraziPosete.execute(request.getRequestObject());
             List<Poseta> posete = (List<Poseta>) systemOperationPretraziPosete.getResult();
+            if(posete.isEmpty()){
+                throw new Exception();
+            }
             GenericEntity<List<Poseta>> ge = new GenericEntity<List<Poseta>>(posete) {
             };
             
             loggerWrapper.getLogger().log(Level.FINE, "user_pet_visit_search", new Object[]{request.getKorisnik()});
             return Response.ok(ge).build();
         } catch (Exception e) {
-            loggerWrapper.getLogger().log(Level.INFO, "user_pet_visit_search_failed", new Object[]{request.getKorisnik()});
-            return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "pet_visit_search_failed")).build();
+            loggerWrapper.getLogger().log(Level.INFO, "user_visit_search_error", new Object[]{request.getKorisnik()});
+            return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "visit_search_error")).build();
         }
     }
     
@@ -360,7 +367,7 @@ public class Kontrolor{
             checkIfUserIsLoggedIn(request.getKorisnik());
             systemOperationPrikaziPosetu.execute(request.getRequestObject());
             Poseta poseta = (Poseta) systemOperationPrikaziPosetu.getResult();
-            loggerWrapper.getLogger().log(Level.FINE, "user_show_pet_visit", new Object[]{request.getKorisnik().getKorisnikid(), poseta.getPosetaid()});
+         //   loggerWrapper.getLogger().log(Level.FINE, "user_show_pet_visit", new Object[]{request.getKorisnik().getKorisnikid(), poseta.getPosetaid()});
             return Response.ok(poseta).build();
         } catch (Exception ex) {
             loggerWrapper.getLogger().log(Level.INFO, "user_show_pet_visit_error", new Object[]{request.getKorisnik().getKorisnikid()});
@@ -376,16 +383,19 @@ public class Kontrolor{
         try {
             systemOperationPretraziUsluge.execute(request.getRequestObject());
             List<Usluga> result = (List<Usluga>) systemOperationPretraziUsluge.getResult();
+            if(result.isEmpty()){
+                throw new Exception();
+            }
             GenericEntity<List<Usluga>> gt = new GenericEntity<List<Usluga>>(result) {
             };
             return Response.ok(gt).build();
         } catch (Exception ex) {
             Logger.getLogger(Kontrolor.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(createMessage(request.getLanguage(), "service_search_error")).build();
         }
     }
     
-        @POST
+    @POST
     @Path("prikaziUslugu")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -396,7 +406,7 @@ public class Kontrolor{
             Usluga u = (Usluga) systemOperationPrikaziUslugu.getResult();
             GenericEntity<Usluga> gt = new GenericEntity<Usluga>(u) {
             };
-            loggerWrapper.getLogger().log(Level.INFO, "user_show_service", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + u.getNaziv()});
+           // loggerWrapper.getLogger().log(Level.INFO, "user_show_service", new Object[]{request.getKorisnik().getKorisnikid(), ((Usluga) request.getRequestObject()).getUslugaid() + " " + u.getNaziv()});
             return Response.ok(gt).build();
         } catch (Exception ne) {
             String odg = createMessage(request.getLanguage(), "show_service_error");
@@ -405,7 +415,7 @@ public class Kontrolor{
         }
     }
     
-     @POST
+    @POST
     @Path("ucitajTipoveUsluga")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_XML)

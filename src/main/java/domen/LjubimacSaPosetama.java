@@ -102,6 +102,7 @@ public class LjubimacSaPosetama implements Serializable {
         this.pol = lj.getPol();
         this.vlasnikid = lj.getVlasnikid();
         this.rasa = lj.getRasa();
+        this.sifracipa = lj.getSifracipa();
         this.posetaList = lj.getPosetaList();
         this.vrstazivotinjeid = lj.getVrstazivotinjeid();
     }

@@ -10,6 +10,7 @@ import domen.Search;
 import java.util.List;
 import java.util.Map;
 import javax.ejb.Stateless;
+import javax.swing.SortOrder;
 
 
 /**
@@ -26,6 +27,7 @@ public class SystemOperationPretraziPosete extends AbstractSystemOperation {
     @Override
     public void execute(Object object) throws Exception {
         Search search = (Search) object;
+
         for (Map.Entry<String, Object> en : search.getFilters().entrySet() ) {
                 String key = en.getKey();
                 Object value = en.getValue();

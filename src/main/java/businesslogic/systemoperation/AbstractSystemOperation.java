@@ -15,6 +15,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.swing.SortOrder;
@@ -34,6 +35,7 @@ public class AbstractSystemOperation<T> {
     private Class<T> entityClass;
 
     public AbstractSystemOperation() {
+       
     }
 
     public AbstractSystemOperation(Class<T> entityClass) {
@@ -100,6 +102,12 @@ public class AbstractSystemOperation<T> {
         }
         return query;
     }
+
+    public void setEm(EntityManager em) {
+        this.em = em;
+    }
+    
+    
 
     
     

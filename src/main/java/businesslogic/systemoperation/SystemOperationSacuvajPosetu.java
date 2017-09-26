@@ -25,16 +25,19 @@ public class SystemOperationSacuvajPosetu extends AbstractSystemOperation {
 
     @Override
     public void execute(Object object) throws Exception {
-        Poseta poseta = (Poseta) object;
-        if (em.find(Ljubimac.class, poseta.getLjubimacid().getLjubimacid()) == null) {
+            Poseta poseta = (Poseta) object;
+            if (em.find(Ljubimac.class, poseta.getLjubimacid().getLjubimacid()) == null) {
                 throw new Exception();
             }
             poseta.setPosetaid(0);
+            if(poseta.getStavkaposeteList().isEmpty()){
+                throw new Exception();
+            }
+                    
             for (Stavkaposete stavkaposete : poseta.getStavkaposeteList()) {
                 stavkaposete.setPoseta(poseta);
             }
             em.persist(poseta);
-            
             em.flush();
     }
 

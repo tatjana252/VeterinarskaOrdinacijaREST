@@ -28,7 +28,7 @@ public class SystemOperationSacuvajUslugu extends AbstractSystemOperation{
                     .setMaxResults(1)
                     .getResultList()
                     .isEmpty()) {
-                throw new Exception();
+                throw new Exception("Usluga već postoji!");
             }
             em.persist(usluga);
     }

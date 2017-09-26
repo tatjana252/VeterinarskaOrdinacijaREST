@@ -38,8 +38,8 @@ import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Poseta.findAll", query = "SELECT p FROM Poseta p ORDER BY p.datum DESC")
-    , @NamedQuery(name = "Poseta.findByPosetaid", query = "SELECT p FROM Poseta p WHERE p.posetaid = :posetaid")
-    , @NamedQuery(name = "Poseta.findByDatum", query = "SELECT p FROM Poseta p WHERE p.datum = :datum")})
+    , @NamedQuery(name = "Poseta.findByPosetaid", query = "SELECT p FROM Poseta p WHERE p.posetaid = :posetaid ORDER BY p.datum DESC")
+    , @NamedQuery(name = "Poseta.findByDatum", query = "SELECT p FROM Poseta p WHERE p.datum = :datum ORDER BY p.datum DESC")})
 public class Poseta implements Serializable {
 
     private static final long serialVersionUID = 1L;
